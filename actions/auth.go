@@ -54,7 +54,7 @@ func AuthCreate(c buffalo.Context) error {
 		return bad()
 	}
 	user_id := u.ID
-	fmt.Print(user_id, "asfasfasfafasf")
+
 	//check user has non expired token
 
 	access_token := &models.AccessToken{}
@@ -69,11 +69,4 @@ func AuthCreate(c buffalo.Context) error {
 	tx.Update(access_token)
 
 	return c.Render(http.StatusOK, r.JSON(access_token))
-}
-
-// AuthDestroy clears the session and logs a user out
-func AuthDestroy(c buffalo.Context) error {
-	c.Session().Clear()
-	c.Flash().Add("success", "You have been logged out!")
-	return c.Redirect(302, "/")
 }

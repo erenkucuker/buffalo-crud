@@ -70,13 +70,11 @@ func App() *buffalo.App {
 		//Routes for Auth
 
 		app.POST("/auth/login", AuthCreate)
-		app.DELETE("/delete", AuthDestroy)
 		app.Middleware.Skip(Authorize, AuthCreate)
 
 		//Routes for User registration
 		users := app.Group("/users")
-		users.POST("/", UsersCreate)
-		users.Middleware.Remove(Authorize)
+		users.GET("/me", currentUser)
 
 	}
 
