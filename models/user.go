@@ -15,14 +15,15 @@ import (
 
 //User is a generated model from buffalo-auth, it serves as the base for username/password authentication.
 type User struct {
-	ID           uuid.UUID `json:"id" db:"id"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
-	Email        string    `json:"email" db:"email"`
-	PasswordHash string    `json:"password_hash" db:"password_hash"`
+	ID           uuid.UUID   `json:"id" db:"id"`
+	CreatedAt    time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at" db:"updated_at"`
+	Email        string      `json:"email" db:"email"`
+	PasswordHash string      `json:"password_hash" db:"password_hash"`
+	AccessToken  AccessToken `json:"access_token,omitempty" has_one:"access_token"`
 
-	Password             string `json:"-" db:"-"`
-	PasswordConfirmation string `json:"-" db:"-"`
+	Password             string `json:"password" db:"password_hash"`
+	PasswordConfirmation string `json:"password_confirmation" db:"password_hash"`
 }
 
 // Create wraps up the pattern of encrypting the password and

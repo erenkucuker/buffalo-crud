@@ -1,0 +1,8 @@
+create_table("access_tokens"){
+      t.Column("id", "bigint",{"primary": true})
+      t.Column("user_id", "uuid",{})
+      t.Column("access_token","string", {"size": 200})
+      t.Column("expires_at","timestamp",{})
+      t.ForeignKey("user_id", {"users": ["id"]})
+      t.DisableTimestamps()
+}

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,25 +12,17 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 
+	"buffalo_crud/helpers"
 	"buffalo_crud/models"
 )
 
-// AuthLanding shows a landing page to login
-func AuthLanding(c buffalo.Context) error {
-	return c.Render(200, r.HTML("auth/landing.plush.html"))
-}
-
-// AuthNew loads the signin page
-func AuthNew(c buffalo.Context) error {
-	c.Set("user", models.User{})
-	return c.Render(200, r.HTML("auth/new.plush.html"))
-}
-
 // AuthCreate attempts to log the user in with an existing account.
 func AuthCreate(c buffalo.Context) error {
+
 	u := &models.User{}
 	if err := c.Bind(u); err != nil {
 		return errors.WithStack(err)
+
 	}
 
 	tx := c.Value("tx").(*pop.Connection)
@@ -41,11 +34,10 @@ func AuthCreate(c buffalo.Context) error {
 	bad := func() error {
 		verrs := validate.NewErrors()
 		verrs.Add("email", "invalid email/password")
-
 		c.Set("errors", verrs)
 		c.Set("user", u)
 
-		return c.Render(http.StatusUnauthorized, r.HTML("auth/new.plush.html"))
+		return c.Render(http.StatusOK, r.Auto(c, verrs))
 	}
 
 	if err != nil {
@@ -61,15 +53,22 @@ func AuthCreate(c buffalo.Context) error {
 	if err != nil {
 		return bad()
 	}
-	c.Session().Set("current_user_id", u.ID)
-	c.Flash().Add("success", "Welcome Back to Buffalo!")
+	user_id := u.ID
+	fmt.Print(user_id, "asfasfasfafasf")
+	//check user has non expired token
 
-	redirectURL := "/"
-	if redir, ok := c.Session().Get("redirectURL").(string); ok && redir != "" {
-		redirectURL = redir
+	access_token := &models.AccessToken{}
+	err = tx.Where("user_id = ?", user_id).Where("expires_at > NOW()").First(access_token)
+	if err != nil {
+		fmt.Print("ERROR!\n")
+		fmt.Printf("%v\n", err)
 	}
 
-	return c.Redirect(302, redirectURL)
+	token := helpers.String(40)
+	access_token.AccessToken = token
+	tx.Update(access_token)
+
+	return c.Render(http.StatusOK, r.JSON(access_token))
 }
 
 // AuthDestroy clears the session and logs a user out
