@@ -1,11 +1,11 @@
 ---
 development:
   dialect: "mysql"
-  database: "buffalo_crud_development"
-  host: "localhost"
-  port: "3306"
-  user: "root"
-  password: "root"
+  database: {{envOr "DATABASE_NAME" "default_db"}}
+  host: {{envOr "DATABASE_HOST" "localhost"}}
+  port: "8889"
+  user: {{envOr "DATABASE_USERNAME" "root"}}
+  password: {{envOr "DATABASE_PASSWORD" ""}}
 
 test:
   dialect: "mysql"

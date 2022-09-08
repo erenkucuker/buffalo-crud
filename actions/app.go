@@ -63,6 +63,24 @@ func App() *buffalo.App {
 		// Remove to disable this.
 		app.Use(popmw.Transaction(models.DB))
 		app.GET("/", HomeHandler)
+		//AuthMiddlewares
+		app.Use(SetCurrentUser)
+		app.Use(Authorize)
+
+		//Routes for Auth
+		auth := app.Group("/auth")
+		auth.GET("/", AuthLanding)
+		auth.GET("/new", AuthNew)
+		auth.POST("/", AuthCreate)
+		auth.DELETE("/", AuthDestroy)
+		auth.Middleware.Skip(Authorize, AuthLanding, AuthNew, AuthCreate)
+
+		//Routes for User registration
+		users := app.Group("/users")
+		users.GET("/new", UsersNew)
+		users.POST("/", UsersCreate)
+		users.Middleware.Remove(Authorize)
+
 	}
 
 	return app
