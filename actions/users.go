@@ -2,6 +2,7 @@ package actions
 
 import (
 	"buffalo_crud/constants/messages"
+	"buffalo_crud/helpers"
 	"buffalo_crud/models"
 	"log"
 	"net/http"
@@ -52,11 +53,12 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 		tx := c.Value("tx").(*pop.Connection)
 		access_token := &models.AccessToken{}
 		err := tx.Where("access_token = ?", header_token).First(access_token)
-		m := make(map[string]string)
-		m["message"] = messages.NotAllowedToAccess
+		resp := helpers.NewServerResponse()
+		resp.Code = http.StatusForbidden
+		resp.Message = messages.NotAllowedToAccess
 
 		if err != nil {
-			return c.Render(http.StatusForbidden, r.JSON(m))
+			return c.Render(http.StatusForbidden, r.JSON(resp))
 		}
 		return next(c)
 	}
